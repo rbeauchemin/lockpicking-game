@@ -5,7 +5,7 @@ from IPython.core.pylabtools import figsize, getfigs
 from pylab import *
 from numpy import *
 import sys
-import cStringIO
+from io import BytesIO as cStringIO
 from PIL import Image
 np = numpy
 plt = pyplot
@@ -23,7 +23,7 @@ if yorn == 'y':
         theta = np.arctan((y-y0)/(x-x0))
         xnew = x0 + (r0 * np.cos(theta))
         ynew = y0 + (r0 * np.sin(theta))
-        if x > x0:    
+        if x > x0:
             plt.plot([x0,xnew],[y0,ynew],'k')
             on_click.xprev = xnew
             on_click.yprev = ynew
@@ -60,7 +60,7 @@ if yorn == 'y':
         y_previous.append(on_click.yprev)
         print(guess)
         force = int(input('Choose the force applied (1-5): '))
-        
+
         if abs(correct_guess-guess) < 3:
             angle = 'correct'
         elif abs(correct_guess-guess) < 15 and abs(correct_guess-guess) >= 3:
@@ -71,7 +71,7 @@ if yorn == 'y':
             angle = 'far'
         else:
             angle = 'realfar'
-            
+
         if angle == 'correct':
             if force == 5:
                 print('*Click*')
@@ -84,7 +84,7 @@ if yorn == 'y':
                 show()
             elif force < 5:
                 print('The pick is pushed with no resistance.')
-                
+
         elif angle == 'close':
             if force == 5:
                 lockpicks -= 1
@@ -113,7 +113,7 @@ if yorn == 'y':
                     print('The pick feels resistance.')
             else:
                 print('The pick is pushed with no resistance.')
-                
+
         elif angle == 'far':
             if force >= 3:
                 lockpicks -= 1
@@ -128,7 +128,7 @@ if yorn == 'y':
                     print('The pick feels resistance.')
             else:
                 print('The pick is pushed with no resistance.')
-                    
+
         elif angle == 'realfar':
             if force >= 2:
                 lockpicks -= 1
