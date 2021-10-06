@@ -48,6 +48,12 @@ class LockPicking(Adventurer):
             correct_guess = random.randint(-90,270) if self.interactive else random.randint(-180,180)
             self.pick_strain = 0
             guess, x_previous, y_previous = 0, [], []
+            if self.interactive:
+                print('Interactive Hints:\n'
+                      'Choose an angle by clicking on the chest.\n'
+                      'Red Angles represent previous attempts.\n'
+                      'Close the plot to move on to force selection.\n'
+                      'Close the plot without selecting to reuse your last guess.')
             while self.picks != 0:
                 if self.interactive:
                     guess, x_previous, y_previous = vis.pick_plot(guess, x_previous, y_previous)

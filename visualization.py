@@ -22,7 +22,6 @@ def pick_plot(guess, x_previous=[], y_previous=[]):
             plt.plot([x0, x0 - (xnew - x0)], [y0, y0 - (ynew - y0)], 'k')
             on_click.guess = np.degrees(theta + np.pi)
         fig.canvas.draw()
-    print('Choose an angle with the mouse')
     fig, ax = plt.subplots()
     ax.set_xlim(0, 600)
     ax.set_ylim(400,0)
