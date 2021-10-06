@@ -1,12 +1,6 @@
-import numpy
-from matplotlib import pyplot
-# from IPython.core.pylabtools import figsize, getfigs
-from pylab import *
-from numpy import *
+import numpy as np
+from matplotlib import pyplot as plt
 from PIL import Image
-np = numpy
-plt = pyplot
-ioff()
 
 x0, y0 = 297, 223.5
 
@@ -39,7 +33,7 @@ def pick_plot(guess, x_previous=[], y_previous=[]):
         plt.plot([x0, x_previous[i]], [y0, y_previous[i]], 'r')
         fig.canvas.draw()
     fig.canvas.mpl_connect('button_press_event', on_click)
-    show(block=True)
+    plt.show(block=True)
     if hasattr(on_click, 'guess'):
         guess = on_click.guess
         x_previous.append(on_click.xprev)
@@ -52,5 +46,5 @@ def treasure_plot():
     treasure = Image.open('treasure.png')
     ax.imshow(treasure)
     ax.axis('off')
-    show(block=True)
+    plt.show(block=True)
     
