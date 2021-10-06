@@ -1,5 +1,5 @@
 import random
-
+import visualization as vis
 
 class Adventurer:
     def __init__(self):
@@ -7,6 +7,7 @@ class Adventurer:
                           'picks': random.randint(3,6),
                           'sapphires': 0,
                           'rubies': 0}
+        self.interactive = True
 
     def get_inv_count(self, item):
         return self.inventory[item] if item in self.inventory else 0
@@ -16,7 +17,7 @@ class Adventurer:
             self.inventory[item] = 0
         if self.get_inv_count(item) + alteration >= 0:
             self.inventory[item] = self.get_inv_count(item) + alteration
-        return self.inventory[item] 
+        return self.inventory[item]
 
     def set_inv_count(self, item, num):
         self.inventory[item] = num
@@ -44,25 +45,27 @@ class LockPicking(Adventurer):
         if yorn.lower()[0] == 'n':
             print('Not this time... You decide to continue on.')
         if yorn.lower()[0] == 'y':
-            correct_guess = random.randint(-180,180)
+            correct_guess = random.randint(-90,270) if self.interactive else random.randint(-180,180)
             self.pick_strain = 0
-            guess = 0
+            guess, x_previous, y_previous = 0, [], []
             while self.picks != 0:
-                guess = input('Choose an angle (integer between -180 and 180) [previous]: ') or guess
+                if self.interactive:
+                    guess, x_previous, y_previous = vis.pick_plot(guess, x_previous, y_previous)
+                else:
+                    guess = input('Choose an angle (integer between -180 and 180) [previous]: ') or guess
                 force = int(input('Choose the force applied (1-5): '))
                 guess = int(guess)
                 
-                if abs(correct_guess-guess) < 3:
+                if abs(correct_guess - guess) < 3:
                     angle = 'correct'
-                elif abs(correct_guess-guess) < 15 and abs(correct_guess-guess) >= 3:
+                elif abs(correct_guess - guess) < 15 and abs(correct_guess - guess) >= 3:
                     angle = 'close'
-                elif abs(correct_guess-guess) < 30 and abs(correct_guess-guess) >= 15:
+                elif abs(correct_guess - guess) < 30 and abs(correct_guess - guess) >= 15:
                     angle = 'nearlyclose'
-                elif abs(correct_guess-guess) < 60 and abs(correct_guess-guess) >= 30:
+                elif abs(correct_guess - guess) < 60 and abs(correct_guess - guess) >= 30:
                     angle = 'far'
                 else:
                     angle = 'realfar'
-                angle = 'correct'
                     
                 if angle == 'correct':
                     if force == 5:
@@ -71,6 +74,7 @@ class LockPicking(Adventurer):
                         super().alter_inv_count('gold', random.randint(10,20))
                         super().alter_inv_count('sapphires', random.randint(1,2))
                         super().alter_inv_count('rubies', random.randint(1,2))
+                        vis.treasure_plot()
                         break
                     elif force < 5:
                         print('The pick is pushed with no resistance.')
