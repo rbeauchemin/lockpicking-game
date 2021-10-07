@@ -1,3 +1,4 @@
+# TODO: Add docstrings
 import random
 import visualization as vis
 from prettytable import PrettyTable
@@ -23,12 +24,35 @@ class Adventurer:
     def get_inv_count(self, item):
         return self.inventory[item] if item in self.inventory else 0
     
-    def alter_inv_count(self, item, alteration):
-        if item not in self.inventory:
-            self.inventory[item] = 0
-        if self.get_inv_count(item) + alteration >= 0:
-            self.inventory[item] = self.get_inv_count(item) + alteration
-        return self.inventory[item]
+    def alter_inv_count(self, items):
+        changed_items = {item: alteration
+                         for item, alteration in items.items()
+                         if alteration != 0}
+        for item, alteration in changed_items.items():
+            if item not in self.inventory:
+                self.inventory[item] = 0
+            if self.get_inv_count(item) + alteration >= 0:
+                self.inventory[item] = self.get_inv_count(item) + alteration
+        # Added Items
+        added_items = {item: alteration
+                         for item, alteration in changed_items.items()
+                         if alteration > 0}
+        if len(added_items) > 0:
+            t = PrettyTable(['You obtained:'])
+            for key, val in added_items.items():
+                t.add_row([f'{key} x {val}'])
+            print(t)
+
+        # Lost Items
+        lost_items = {item: alteration
+                         for item, alteration in changed_items.items()
+                         if alteration < 0}
+        if len(lost_items) > 0:
+            t = PrettyTable(['You lost:'])
+            for key, val in lost_items.items():
+                t.add_row([f'{key} x {abs(val)}'])
+            print(t)
+        return
 
     def set_inv_count(self, item, num):
         self.inventory[item] = num
@@ -45,31 +69,31 @@ class Adventurer:
 
 
 class LockPicking(Adventurer):
-    # TODO: Save adventurer data into file before each return
     def __init__(self):
         super().__init__()
         self.pick_strain = 0
-        self.picks = super().get_inv_count('picks')
+        self.picks = self.get_inv_count('picks')
     
     def _pick_breaks(self, from_repeat=False):
-        self.picks -= 1
-        self.pick_strain = 0
         if from_repeat:
             print(f'The pick feels resistance and snaps from repeated stress. You now have {self.picks} picks.')
         else:
-            print('The pick breaks. You now have {0} picks.'.format(self.picks))
+            print(f'The pick breaks. You now have {self.picks} picks.')
+        self.alter_inv_count({'picks': -1})
+        self.pick_strain = 0
 
     def lockpicking_sequence(self, first_time=True):
+        # TODO: Add a store where lockpicks can be purchased with gold, rubies and sapphires can be sold
         if first_time:
             print('You come across a dark cellar room and spot a chest with a lock in the corner.')
             print('You know that if you can apply leverage at the correct degree, the lock will free.')
             print(f'You have {self.picks} picks, and one will break if you force it too hard at the wrong angle.')
-        # TODO add clause for not first time but a new chest
+        # TODO: Add clause for not first time but a new chest
         user_input = input('Will you attempt to pick the lock? [y]/n/i/q: ') or 'y'
         if user_input.lower()[0] == 'i':
             print('Inventory:')
             self.view_inventory()
-            self.lockpicking_sequence(first_time=False)
+            return self.lockpicking_sequence(first_time=False)
         elif user_input.lower()[0] == 'q':
             print('You decide it is better to stop while you\'re ahead and work your way back to camp.')
             self.save_game()
@@ -115,11 +139,9 @@ class LockPicking(Adventurer):
                     if force == 5:
                         print('*Click*')
                         print('The lock falls to the floor and the chest opens to reveal gold strewn with shining sapphires and rubies.')
-
-                        gold, sapphires, rubies = random.randint(10,20), random.randint(1,2), random.randint(1,2)
-                        super().alter_inv_count('gold', gold)
-                        super().alter_inv_count('sapphires', sapphires)
-                        super().alter_inv_count('rubies', rubies)
+                        self.alter_inv_count({'gold': random.randint(10,20),
+                                              'sapphires': random.randint(1,2),
+                                              'rubies': random.randint(1,2)})
                         vis.treasure_plot()
                         break
                     elif force < 5:
