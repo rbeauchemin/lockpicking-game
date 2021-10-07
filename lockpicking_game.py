@@ -89,6 +89,7 @@ class LockPicking(Adventurer):
             print('You know that if you can apply leverage at the correct degree, the lock will free.')
             print(f'You have {self.picks} picks, and one will break if you force it too hard at the wrong angle.')
         # TODO: Add clause for not first time but a new chest
+        # TODO: Add handling for improper input and give helper for what y/n/i/q means
         user_input = input('Will you attempt to pick the lock? [y]/n/i/q: ') or 'y'
         if user_input.lower()[0] == 'i':
             print('Inventory:')
