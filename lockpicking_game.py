@@ -1,14 +1,23 @@
 import random
 import visualization as vis
 from prettytable import PrettyTable
+import hashlib
+import pickle
+import os
 
 class Adventurer:
-    # TODO: Load from pickle if save file exists, else start over.
     def __init__(self):
-        self.inventory = {'gold': random.randint(20,40),
-                          'picks': random.randint(3,6),
-                          'sapphires': 0,
-                          'rubies': 0}
+        self.adventure_hash = hashlib.sha256(os.environ.get('USER').encode('utf-8')).hexdigest()[:32]
+        try:
+            with open(f'saves/{self.adventure_hash}', 'rb') as adv_fi:
+                adventurer = pickle.load(adv_fi)
+                self.inventory = adventurer['inventory']
+        except FileNotFoundError:
+            self.inventory = {'gold': random.randint(20,40),
+                              'picks': random.randint(3,6),
+                              'sapphires': 0,
+                              'rubies': 0}
+            self.save_game()
         self.interactive = True
 
     def get_inv_count(self, item):
@@ -25,10 +34,14 @@ class Adventurer:
         self.inventory[item] = num
     
     def view_inventory(self):
-        t = PrettyTable(['object', 'quantity'])
+        t = PrettyTable(['item', 'quantity'])
         for key, val in self.inventory.items():
             t.add_row([key, val])
         print(t)
+
+    def save_game(self):
+        with open(f'saves/{self.adventure_hash}', 'wb') as adv_fi:
+            pickle.dump({'inventory': self.inventory}, adv_fi)
 
 
 class LockPicking(Adventurer):
@@ -59,6 +72,7 @@ class LockPicking(Adventurer):
             self.lockpicking_sequence(first_time=False)
         elif user_input.lower()[0] == 'q':
             print('You decide it is better to stop while you\'re ahead and work your way back to camp.')
+            self.save_game()
             return False
         elif user_input.lower()[0] == 'n':
             print('Not this time... You decide to continue on.')
@@ -80,6 +94,7 @@ class LockPicking(Adventurer):
                 force = input('Choose the force you want to apply (1-5) (or q to quit): ')
                 if force.lower()[0] == 'q':
                     print('You decide to leave this for another adventurer to crack.')
+                    self.save_game()
                     return True
                 else:
                     force = int(force)
@@ -100,9 +115,11 @@ class LockPicking(Adventurer):
                     if force == 5:
                         print('*Click*')
                         print('The lock falls to the floor and the chest opens to reveal gold strewn with shining sapphires and rubies.')
-                        super().alter_inv_count('gold', random.randint(10,20))
-                        super().alter_inv_count('sapphires', random.randint(1,2))
-                        super().alter_inv_count('rubies', random.randint(1,2))
+
+                        gold, sapphires, rubies = random.randint(10,20), random.randint(1,2), random.randint(1,2)
+                        super().alter_inv_count('gold', gold)
+                        super().alter_inv_count('sapphires', sapphires)
+                        super().alter_inv_count('rubies', rubies)
                         vis.treasure_plot()
                         break
                     elif force < 5:
@@ -152,6 +169,7 @@ class LockPicking(Adventurer):
                             self._pick_breaks(from_repeat=True)
                         else:
                             print('The pick feels resistance.')
+        self.save_game()
         return True
                     
 if __name__ == '__main__':
