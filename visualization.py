@@ -37,7 +37,7 @@ def pick_plot(guess, x_previous=[], y_previous=[]):
     fig, ax = plt.subplots()
     ax.set_xlim(0, 600)
     ax.set_ylim(400,0)
-    chest = Image.open('chest.png')
+    chest = Image.open('assets/chest.png')
     ax.imshow(chest)
     ax.axis('off')
     for i in range(len(x_previous)):
@@ -58,7 +58,7 @@ def pick_plot(guess, x_previous=[], y_previous=[]):
 
 def treasure_plot():
     fig, ax = plt.subplots()
-    treasure = Image.open('treasure.png')
+    treasure = Image.open('assets/treasure.png')
     ax.imshow(treasure)
     ax.axis('off')
     plt.show(block=True)

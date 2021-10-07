@@ -1,3 +1,6 @@
 .DS_Store
 .gitconfig
-__pycache__/*
+__pycache__/**
+
+# Don't keep player saves
+saves/**

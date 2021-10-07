@@ -1,7 +1,9 @@
 import random
 import visualization as vis
+from prettytable import PrettyTable
 
 class Adventurer:
+    # TODO: Load from pickle if save file exists, else start over.
     def __init__(self):
         self.inventory = {'gold': random.randint(20,40),
                           'picks': random.randint(3,6),
@@ -21,9 +23,16 @@ class Adventurer:
 
     def set_inv_count(self, item, num):
         self.inventory[item] = num
+    
+    def view_inventory(self):
+        t = PrettyTable(['object', 'quantity'])
+        for key, val in self.inventory.items():
+            t.add_row([key, val])
+        print(t)
 
 
 class LockPicking(Adventurer):
+    # TODO: Save adventurer data into file before each return
     def __init__(self):
         super().__init__()
         self.pick_strain = 0
@@ -33,18 +42,27 @@ class LockPicking(Adventurer):
         self.picks -= 1
         self.pick_strain = 0
         if from_repeat:
-            print('The pick feels resistance and snaps from repeated stress. You now have {0} picks.'.format(self.picks))
+            print(f'The pick feels resistance and snaps from repeated stress. You now have {self.picks} picks.')
         else:
             print('The pick breaks. You now have {0} picks.'.format(self.picks))
 
-    def lockpicking_sequence(self):
-        print('You come across a dark cellar room and spot a chest with a lock in the corner.')
-        print('You know that if you can apply leverage at the correct degree, the lock will free.')
-        print('You have {0} picks, and one will break if you force it too hard at the wrong angle.'.format(self.picks))
-        yorn = input('Will you attempt to pick the lock? [y]/n: ') or 'y'
-        if yorn.lower()[0] == 'n':
+    def lockpicking_sequence(self, first_time=True):
+        if first_time:
+            print('You come across a dark cellar room and spot a chest with a lock in the corner.')
+            print('You know that if you can apply leverage at the correct degree, the lock will free.')
+            print(f'You have {self.picks} picks, and one will break if you force it too hard at the wrong angle.')
+        # TODO add clause for not first time but a new chest
+        user_input = input('Will you attempt to pick the lock? [y]/n/i/q: ') or 'y'
+        if user_input.lower()[0] == 'i':
+            print('Inventory:')
+            self.view_inventory()
+            self.lockpicking_sequence(first_time=False)
+        elif user_input.lower()[0] == 'q':
+            print('You decide it is better to stop while you\'re ahead and work your way back to camp.')
+            return False
+        elif user_input.lower()[0] == 'n':
             print('Not this time... You decide to continue on.')
-        if yorn.lower()[0] == 'y':
+        elif user_input.lower()[0] == 'y':
             correct_guess = random.randint(-90,270) if self.interactive else random.randint(-180,180)
             self.pick_strain = 0
             guess, x_previous, y_previous = 0, [], []
@@ -59,7 +77,12 @@ class LockPicking(Adventurer):
                     guess, x_previous, y_previous = vis.pick_plot(guess, x_previous, y_previous)
                 else:
                     guess = input('Choose an angle (integer between -180 and 180) [previous]: ') or guess
-                force = int(input('Choose the force applied (1-5): '))
+                force = input('Choose the force you want to apply (1-5) (or q to quit): ')
+                if force.lower()[0] == 'q':
+                    print('You decide to leave this for another adventurer to crack.')
+                    return True
+                else:
+                    force = int(force)
                 guess = int(guess)
                 
                 if abs(correct_guess - guess) < 3:
@@ -129,7 +152,11 @@ class LockPicking(Adventurer):
                             self._pick_breaks(from_repeat=True)
                         else:
                             print('The pick feels resistance.')
-        return
+        return True
                     
 if __name__ == '__main__':
-    LockPicking().lockpicking_sequence()
+    player_cont = True
+    # TODO: New Adventurer setup sequence
+    # TODO: Adventurer welcome back sequence otherwise
+    while player_cont:
+        player_cont = LockPicking().lockpicking_sequence()
