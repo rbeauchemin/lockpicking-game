@@ -1,6 +1,9 @@
+# Personal filesystem stuff
 .DS_Store
 .gitconfig
 __pycache__/**
 
 # Don't keep player saves
 saves/**
+# Except our cheat codes (placeholder for git)
+!saves/.cheatcodes
